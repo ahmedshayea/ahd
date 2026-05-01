@@ -57,15 +57,15 @@ export default function Home() {
             variant="outline"
             className="text-brand-teal border-brand-teal/30 bg-brand-teal/5 rounded-full px-4 py-1.5 text-base font-medium"
           >
-            مُصمم للعمل المستقل والشركات
+            لأي شخص يحتاج عقود شغل بنظام المراحل
           </Badge>
           <h1 className="text-brand-navy dark:text-brand-ivory text-5xl leading-tight font-extrabold tracking-tight text-balance md:text-7xl lg:text-8xl">
             من اتفاق غير رسمي <br className="hidden md:block" />
             إلى عقد ممول.
           </h1>
-          <p className="text-muted-foreground mt-2 max-w-2xl text-xl leading-relaxed text-balance md:text-2xl">
-            اربط الدفعات بمعايير القبول. احمِ نفسك من التعديلات اللانهائية
-            والاختفاء المفاجئ.
+          <p className="text-muted-foreground mt-2 max-w-2xl text-xl leading-relaxed md:text-2xl">
+            عقدك، مراجعاتك، ودفعتك — كلهم في مكان واحد. سواء كنت تقدّم خدمة أو
+            تطلبها، كلنا نفس الشيء.
           </p>
           <div className="flex flex-wrap items-center gap-4 pt-6">
             <Button
@@ -151,16 +151,61 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Section: The Cost of Informal Deals */}
-        <section className="flex flex-col items-center justify-center py-16 text-center md:py-24">
-          <h2 className="text-brand-navy dark:text-brand-ivory text-5xl leading-tight font-extrabold tracking-tight text-balance md:text-7xl lg:text-8xl">
-            80% من المستقلين يعانون من{" "}
-            <span className="text-brand-teal">توسع نطاق العمل</span> غير
-            المدفوع.
-          </h2>
-          <p className="text-muted-foreground mt-8 max-w-3xl text-xl leading-relaxed text-balance md:text-3xl">
-            عهد يحمي وقتك وجهدك عبر تحويل الاتفاقيات الشفهية إلى مسار عمل واضح
-            ومُلزم.
+        {/* Section: The Problem — Trust Gap */}
+        <section className="flex flex-col items-center justify-center gap-12 py-16 text-right md:py-24">
+          <div className="flex flex-col items-center gap-6 text-center">
+            <h2 className="text-brand-navy dark:text-brand-ivory text-5xl font-extrabold tracking-tight text-balance md:text-7xl lg:text-8xl">
+              المشكلة ليست الدفع فقط،{" "}
+              <span className="text-nowrap">بل العقد الغامض.</span>
+            </h2>
+            <p className="text-muted-foreground mt-4 max-w-2xl text-xl leading-relaxed md:text-2xl">
+              المخرجات، شروط القبول، عدد التعديلات، ومتى تُطلق الدفعة — كلهم
+              مجهول حين يبقى الاتفاق في الرأس. عهد يحول هذا الغموض إلى مسار واضح
+              ومُلزم.
+            </p>
+          </div>
+
+          <div className="grid w-full gap-6 md:grid-cols-2 md:gap-8">
+            {[
+              {
+                stat: "85%",
+                text: "من المستقلين يحصلون على مدفوعاتهم متأخرة على الأقل أحيانًا",
+                cite: "Remote Work Report 2025",
+              },
+              {
+                stat: "49%",
+                text: "من الشركات تستخدم جداول يدوية أو أدوات داخلية لإدارة عقود المستقلين",
+                cite: "Remote Work Report 2025",
+              },
+              {
+                stat: "52%",
+                text: "من الشركات زادت اعتمادها على المستقلين خلال آخر ثلاث سنوات",
+                cite: "Remote Work Report 2025",
+              },
+            ].map((item) => (
+              <div
+                key={item.stat}
+                className="border-border/60 bg-muted/30 flex flex-col gap-4 rounded-3xl border p-8"
+              >
+                <p className="text-brand-navy dark:text-brand-teal text-6xl font-black tracking-tight md:text-7xl">
+                  {item.stat}
+                </p>
+                <p className="text-foreground text-lg leading-relaxed md:text-xl">
+                  {item.text}
+                </p>
+                <p className="text-muted-foreground text-sm">{item.cite}</p>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-muted-foreground mt-4 max-w-3xl text-center text-2xl leading-relaxed md:text-2xl">
+            <span className="text-brand-ivory font-extra-bold">عهد</span> لا
+            تبني منصة عمل حر — بل تدير{" "}
+            <span className="text-brand-gold font-extra-bold">العقد</span> وكل
+            ما يتعلق به:{" "}
+            <span className="text-brand-gold font-extra-bold">المراحل</span>،{" "}
+            <span className="text-brand-gold font-extra-bold">الشروط</span>،
+            والمال.
           </p>
         </section>
 
