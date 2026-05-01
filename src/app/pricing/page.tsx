@@ -166,9 +166,6 @@ export default function PricingPage() {
           </div>
           <div className="flex items-center gap-3">
             <Button variant="ghost" className="text-base font-medium" asChild>
-              <Link href="/pricing">الأسعار</Link>
-            </Button>
-            <Button variant="ghost" className="text-base font-medium" asChild>
               <Link href="/login">الدخول</Link>
             </Button>
             <Button
@@ -290,7 +287,7 @@ export default function PricingPage() {
                 variant={plan.buttonVariant}
                 asChild
               >
-                <Link href="/login">
+                <Link href="/dashboard/contracts/new">
                   ابدأ الآن
                   <HugeiconsIcon
                     icon={ArrowRight01Icon}
