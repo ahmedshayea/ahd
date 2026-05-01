@@ -1,29 +1,48 @@
-# Create T3 App
+# Ahd (عهد)
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+> **عهد يحوّل الاتفاقات غير الرسمية إلى عقود ممولة قابلة للتنفيذ.**
 
-## What's next? How do I make an app with this?
+Ahd turns informal agreements into funded, enforceable milestone contracts with built-in revision limits, review windows, and payment state tracking.
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+---
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## What is Ahd?
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+Many contracts start informally — through WhatsApp, Instagram DMs, phone calls, or verbal promises. This creates serious problems: unclear scope, payment risk, client ghosting, infinite revisions, vague disputes, and no audit trail.
 
-## Learn More
+Ahd solves this by helping two parties turn a deal into a structured, milestone-based contract where milestones define what "done" means, funding is committed before work begins, revisions are bounded, review windows protect against ghosting, and payment releases automatically when milestones are approved.
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+---
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+## Hackathon Context
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+Built for **SalamHack** — a regional hackathon focused on building real products with real value.
 
-## How do I deploy this?
+The MVP demonstrates the golden path: informal deal → structured contract → funded milestone → submitted work → review → approved → payment released.
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+---
+
+## How to Run
+
+```bash
+bun install
+bun run db:push
+bun run dev
+```
+
+Visit **http://localhost:3000/login**
+
+---
+
+## Demo Users
+
+| User | Role |
+|------|------|
+| **أزاد حيدر** (Azad Haider) | Service Provider |
+| **عقيمان عمّار** (Loqman Ammar) | Payer/Reviewer |
+
+---
+
+## License
+
+MIT

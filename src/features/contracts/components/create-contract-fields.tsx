@@ -157,43 +157,45 @@ export function ContractBasicsFields() {
 
   return (
     <FieldGroup>
-      <div className="grid gap-5 md:grid-cols-[1fr_14rem]">
-        <Field
-          data-invalid={!!errors.title}
-          data-update-glow={titleUpdated || undefined}
-        >
-          <FieldLabel htmlFor="contract-title">عنوان العقد</FieldLabel>
-          <Input
-            id="contract-title"
-            placeholder="مثال: تصميم الهوية البصرية لمتجر لُما…"
-            autoComplete="off"
-            aria-invalid={!!errors.title}
-            {...register("title")}
-          />
-          <FieldError>{errors.title?.message}</FieldError>
-        </Field>
-        <Field
-          data-invalid={!!errors.totalAmount}
-          data-update-glow={amountUpdated || undefined}
-        >
-          <FieldLabel htmlFor="contract-total-amount" className="items-center">
-            إجمالي العقد
-            <HelpBadge>
-              هذا سقف التمويل. يمكن ترك جزء غير موزع للمراحل.
-            </HelpBadge>
-          </FieldLabel>
+      <Field
+        data-invalid={!!errors.title}
+        data-update-glow={titleUpdated || undefined}
+      >
+        <FieldLabel htmlFor="contract-title">عنوان العقد</FieldLabel>
+        <Input
+          id="contract-title"
+          placeholder="مثال: تصميم الهوية البصرية لمتجر لُما…"
+          autoComplete="off"
+          aria-invalid={!!errors.title}
+          {...register("title")}
+        />
+        <FieldError>{errors.title?.message}</FieldError>
+      </Field>
+      <Field
+        data-invalid={!!errors.totalAmount}
+        data-update-glow={amountUpdated || undefined}
+      >
+        <FieldLabel htmlFor="contract-total-amount" className="items-center">
+          إجمالي العقد
+          <HelpBadge>
+            هذا سقف التمويل. يمكن ترك جزء غير موزع للمراحل.
+          </HelpBadge>
+        </FieldLabel>
+        <div className="flex items-center gap-2">
           <Input
             id="contract-total-amount"
             type="number"
             inputMode="numeric"
             min={1}
-            placeholder="18000…"
+            placeholder="18000"
+            className="text-lg font-medium"
             aria-invalid={!!errors.totalAmount}
             {...register("totalAmount", { valueAsNumber: true })}
           />
-          <FieldError>{errors.totalAmount?.message}</FieldError>
-        </Field>
-      </div>
+          <span className="text-muted-foreground text-sm font-medium">SAR</span>
+        </div>
+        <FieldError>{errors.totalAmount?.message}</FieldError>
+      </Field>
       <Field
         data-invalid={!!errors.description}
         data-update-glow={descriptionUpdated || undefined}
@@ -360,6 +362,20 @@ export function MilestoneBuilder() {
     );
   }
 
+  function resetAllAmounts() {
+    setValue(
+      "milestones",
+      milestones.map((milestone) => ({
+        ...milestone,
+        amount: 0,
+      })),
+      { shouldDirty: true, shouldValidate: true },
+    );
+    glowUpdatedFields(
+      milestones.map((_, index) => `milestones.${index}.amount`),
+    );
+  }
+
   if (!activeMilestone) {
     return null;
   }
@@ -371,6 +387,7 @@ export function MilestoneBuilder() {
         allocation={allocation}
         milestones={milestones}
         onEqualDistribution={distributeEqually}
+        onResetAmounts={resetAllAmounts}
       />
 
       {milestoneMessage ? (
@@ -733,6 +750,7 @@ function MilestoneActiveForm({
     register,
     setValue,
     getValues,
+    control,
     formState: { errors },
   } = useFormContext<CreateAndSendContractFormInput>();
   const milestone =
@@ -741,7 +759,16 @@ function MilestoneActiveForm({
     }) as MilestoneDraft | undefined) ?? createBlankMilestone();
   const milestoneErrors = errors.milestones?.[index];
   const amount = numberOrZero(milestone?.amount);
-  const sliderMax = Math.max(totalAmount, amount, 1);
+  const allMilestones = useWatch({ control, name: "milestones" }) ?? [];
+  const otherMilestonesSum = allMilestones
+    .filter((_, i) => i !== index)
+    .reduce((sum, m) => sum + numberOrZero(m.amount), 0);
+  const remainingBudget = Math.max(0, totalAmount - otherMilestonesSum);
+  const sliderMax = Math.max(remainingBudget, amount, 1);
+  const sliderStep = Math.max(50, Math.floor(totalAmount / 100));
+  const totalWithCurrent = otherMilestonesSum + amount;
+  const isOverAllocated = totalWithCurrent > totalAmount;
+  const overAmount = totalWithCurrent - totalAmount;
   const titleUpdated = useFieldUpdateGlow(`milestones.${index}.title`);
   const amountUpdated = useFieldUpdateGlow(`milestones.${index}.amount`);
   const descriptionUpdated = useFieldUpdateGlow(
@@ -853,6 +880,9 @@ function MilestoneActiveForm({
               </span>
               <span className="text-muted-foreground text-sm">SAR</span>
             </div>
+            <span className="text-sm text-muted-foreground">
+              المتبقي من العقد: {formatSar(remainingBudget)}
+            </span>
           </div>
           <div className="grid gap-4 md:grid-cols-[1fr_12rem] md:items-center">
             <Slider
@@ -860,7 +890,7 @@ function MilestoneActiveForm({
               value={[Math.min(amount, sliderMax)]}
               min={0}
               max={sliderMax}
-              step={100}
+              step={sliderStep}
               onValueChange={(value) => updateAmount(value[0] ?? 0)}
               aria-label="تخصيص مبلغ المرحلة"
             />
@@ -878,6 +908,11 @@ function MilestoneActiveForm({
             />
           </div>
           <FieldError>{milestoneErrors?.amount?.message}</FieldError>
+          {isOverAllocated && (
+            <p className="text-destructive text-sm">
+              تجاوزت الحد الأقصى بـ {formatSar(overAmount)}
+            </p>
+          )}
         </div>
       </Field>
 
@@ -917,8 +952,14 @@ function MilestoneActiveForm({
             إضافة
           </Button>
         </div>
-        <div className="flex flex-col gap-4">
-          {milestone.deliverables.map((_, itemIndex) => (
+        {milestone.deliverables.length === 1 &&
+        !milestone.deliverables[0]?.title ? (
+          <p className="text-muted-foreground py-4 text-center text-sm">
+            أضف أول تسليم لتحديد ما سيستلمه الطرف الآخر.
+          </p>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {milestone.deliverables.map((_, itemIndex) => (
             <div
               key={itemIndex}
               className="grid gap-3 border-b pb-4 md:grid-cols-[1fr_1.4fr_auto]"
@@ -987,7 +1028,8 @@ function MilestoneActiveForm({
               </Button>
             </div>
           ))}
-        </div>
+          </div>
+        )}
       </FieldSet>
 
       <FieldSet>
@@ -1010,7 +1052,13 @@ function MilestoneActiveForm({
             إضافة
           </Button>
         </div>
-        <div className="flex flex-col gap-3">
+        {milestone.acceptanceCriteria.length === 1 &&
+        !milestone.acceptanceCriteria[0]?.trim() ? (
+          <p className="text-muted-foreground py-4 text-center text-sm">
+            أضف معايير قبول واضحة لتحديد متى يُعتبر التسليم مقبولاً.
+          </p>
+        ) : (
+          <div className="flex flex-col gap-3">
           {milestone.acceptanceCriteria.map((_, itemIndex) => (
             <Field
               key={itemIndex}
@@ -1049,7 +1097,8 @@ function MilestoneActiveForm({
               </Button>
             </Field>
           ))}
-        </div>
+          </div>
+        )}
       </FieldSet>
 
       <div className="grid gap-5 md:grid-cols-2">
@@ -1111,12 +1160,16 @@ function AllocationSummary({
   allocation,
   milestones,
   onEqualDistribution,
+  onResetAmounts,
 }: {
   totalAmount: number;
   allocation: ReturnType<typeof getAllocation>;
   milestones: MilestoneDraft[];
   onEqualDistribution: () => void;
+  onResetAmounts: () => void;
 }) {
+  const hasAnyAmount = milestones.some((m) => numberOrZero(m.amount) > 0);
+
   return (
     <section className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
@@ -1135,15 +1188,27 @@ function AllocationSummary({
             )}
           />
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={onEqualDistribution}
-          disabled={!totalAmount}
-        >
-          توزيع متساو على {milestones.length} مراحل
-        </Button>
+        <div className="flex gap-2">
+          {hasAnyAmount && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={onResetAmounts}
+            >
+              إعادة تعيين
+            </Button>
+          )}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onEqualDistribution}
+            disabled={!totalAmount}
+          >
+            توزيع متساو
+          </Button>
+        </div>
       </div>
       <SegmentedAllocationBar
         totalAmount={totalAmount}
